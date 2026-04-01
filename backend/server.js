@@ -44,6 +44,9 @@ app.use(
 );
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ limit: "20mb", extended: true }));
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, version: "v1" });
+});
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
@@ -73,6 +76,7 @@ connectDB().then(() => {
     console.log(`Server running on port ${PORT}`);
   });
 });
+
 
 
 
