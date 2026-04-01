@@ -24,17 +24,24 @@ dotenv.config();
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const frontendOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "http://localhost:5173,http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin || origin.includes("localhost")) {
+      if (!origin) {
         return cb(null, true);
       }
-      if (origin === frontendOrigin) {
+      if (allowedOrigins.includes(origin)) {
         return cb(null, true);
       }
-      cb(new Error("CORS policy: origin not allowed"));
+      return cb(new Error("CORS policy: origin not allowed"));
+    },
+    credentials: true,
+  })
+);
     },
     credentials: true,
   })
@@ -70,4 +77,5 @@ connectDB().then(() => {
     console.log(`Server running on port ${PORT}`);
   });
 });
+
 
