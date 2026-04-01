@@ -24,24 +24,22 @@ dotenv.config();
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const allowedOrigins = (process.env.FRONTEND_URLS || "")
-  .split(",")
-  .map((origin) => origin.trim().replace(/\/$/, ""))
-  .filter(Boolean);
+const allowedOrigins = process.env.FRONTEND_URLS
+  ? process.env.FRONTEND_URLS.split(",").map((origin) => origin.trim())
+  : [];
 
 app.use(
   cors({
-    origin: (origin, cb) => {
-      // Allow non-browser clients (Thunder Client, curl)
-      if (!origin) return cb(null, true);
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
-      const normalizedOrigin = origin.replace(/\/$/, "");
-      if (allowedOrigins.includes(normalizedOrigin)) {
-        return cb(null, true);
-      }
-
-      return cb(new Error("Not allowed by CORS"));
-    },
+// Handle preflight requests explicitly
+app.options(
+  "*",
+  cors({
+    origin: allowedOrigins,
     credentials: true,
   })
 );
