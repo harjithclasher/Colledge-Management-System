@@ -24,20 +24,27 @@ dotenv.config();
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "http://localhost:5173,http://localhost:3000")
+const allowedOrigins = (process.env.FRONTEND_URLS || "")
   .split(",")
-  .map((origin) => origin.trim())
+  .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean);
+
 app.use(
   cors({
     origin: (origin, cb) => {
+      // Allow non-browser clients (Thunder Client, curl)
       if (!origin) return cb(null, true);
 
-      if (allowedOrigins.includes(origin)) {
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      if (allowedOrigins.includes(normalizedOrigin)) {
         return cb(null, true);
       }
 
-      return cb(new Error("CORS not allowed"));
+      return cb(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
     },
     credentials: true,
   })
@@ -76,6 +83,7 @@ connectDB().then(() => {
     console.log(`Server running on port ${PORT}`);
   });
 });
+
 
 
 
