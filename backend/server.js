@@ -34,6 +34,10 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
+    // Allow any Vercel deployment URL to avoid preview-origin mismatches
+    if (origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
     return callback(new Error("CORS blocked: " + origin));
   },
   credentials: true,
