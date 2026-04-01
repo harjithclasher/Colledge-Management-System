@@ -31,17 +31,13 @@ const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL ||
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin) {
-        return cb(null, true);
-      }
+      if (!origin) return cb(null, true);
+
       if (allowedOrigins.includes(origin)) {
         return cb(null, true);
       }
-      return cb(new Error("CORS policy: origin not allowed"));
-    },
-    credentials: true,
-  })
-);
+
+      return cb(new Error("CORS not allowed"));
     },
     credentials: true,
   })
@@ -77,5 +73,7 @@ connectDB().then(() => {
     console.log(`Server running on port ${PORT}`);
   });
 });
+
+
 
 
